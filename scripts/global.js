@@ -15,6 +15,7 @@ function addLoadEvent(func){
 
 }
 
+/*********************index.html begin************************/
 //当前导航栏选中
 
 function highlightPage(){
@@ -37,6 +38,7 @@ function highlightPage(){
 	
 
 }
+
 
 //图片移动动画
 function moveElement(elementID,final_x,final_y,interval) {
@@ -145,6 +147,13 @@ function prepareSlideshow(){
 	}
 
 }
+
+addLoadEvent(highlightPage);
+addLoadEvent(prepareSlideshow);
+
+/**********************index.html end*****************/
+
+/****************** about.html begin*****************/
 //显示section
 function showSection(id) {
 	var sections=document.getElementsByTagName("section");
@@ -179,6 +188,72 @@ function  prepareInternalnav(){
 	}
 }
 
-addLoadEvent(highlightPage);
-addLoadEvent(prepareSlideshow);
+
 addLoadEvent(prepareInternalnav);
+
+/***************about.html end*********************/
+
+
+/***************photos.html begin*****************/
+
+function showPic(whichpic){
+	if(!document.getElementById("placeholder")) return true;
+	var source=whichpic.getAttribute("href");
+	var placeholder = document.getElementById("placeholder");
+	placeholder.setAttribute("src",source);
+	if(!document.getElementById("description")) return false;
+	if(whichpic.getAttribute("title")){
+		var text=whichpic.getAttribute("title");
+	} else {
+		var text="";
+	}
+
+	var description=document.getElementById("description");
+	if(description.firstChild.nodeType==3) {
+		description.firstChild.nodeValue=text;
+
+	}
+	return false;
+
+}
+
+function preparePlaceholder(){
+	if(!document.createElement) return false;
+	if(!document.createTextNode) return false;
+	if(!document.getElementById) return false;
+	if(!document.getElementById("imagegallery")) return false;
+	var placeholder = document.createElement("img");
+	placeholder.setAttribute("id","placeholder");
+	placeholder.setAttribute("src","images/placeholder.gif");
+	placeholder.setAttribute("alt","my image gallery");
+	var description = document.createElement("p");
+	description.setAttribute("id","description");
+	var desctext = document.createTextNode("Choose an image");
+	description.appendChild(desctext);
+	var gallery = document.getElementById("imagegallery");
+	insertAfter(description,gallery);
+	insertAfter(placeholder,description);
+}
+
+function prepareGallery(){
+	if(!document.getElementById) return false;
+	if(!document.getElementsByTagName) return false;
+	var gallery=document.getElementById("imagegallery");
+	var links=gallery.getElementsByTagName("a");
+	for(var i=0;i<links.length;i++){
+		links[i].onclick= function (){
+			return showPic(this);
+		}
+	}
+
+}
+
+addLoadEvent(preparePlaceholder);
+
+addLoadEvent(prepareGallery);
+
+
+/***************photos.html end*****************/
+
+
+

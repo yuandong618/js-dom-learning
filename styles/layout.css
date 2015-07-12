@@ -107,3 +107,7 @@ article img {
 	border-width: 0;
 	outline-width: 0;
 }
+
+#imagegallery li {
+	display: inline;
+}
