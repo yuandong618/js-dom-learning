@@ -307,3 +307,183 @@ addLoadEvent(highlightRows);
 
 /***************live.html end******************/
 
+
+
+/***************contact.html begin*************/
+
+//兼容性处理：点击label标签 光标定位到对应的输入栏
+function focusLabel(){
+	if(!document.getElementsByTagName) return false;
+	var labels=document.getElementsByTagName("label");
+	for(var i=0;i<labels.length;i++){
+		if(!labels[i].getAttribute("for")) continue;
+		labels[i].onclick=function(){
+			var id=this.getAttribute("for");
+			if(!document.getElementById(id)) return false;
+			var elem=document.getElementById(id);
+			elem.focus();
+		}
+	}
+}
+
+addLoadEvent(focusLabel);
+
+//占位符placeholder的兼容性处理
+
+function resetFields(whichform){
+	//if(Modernizr.input.placeholder) return ;
+	//每一个form对象都有一个elements.length属性,该属性只关注那些属于表单元素的元素节点
+	for(var i=0;i<whichform.elements.length;i++){ 
+		var elem=whichform.elements[i];
+		if(elem.type=="submit") continue;
+		var check=elem.placeholder||elem.getAttribute("placeholder");
+		if(!check) continue;
+		elem.onfocus=function (){
+			var text=this.placeholder||this.getAttribute("placeholder");
+			if(this.value == text){
+				this.className="";
+				this.value="";
+			}
+		}
+
+		elem.onblur=function(){
+			if(this.value==""){
+				this.className="placeholder";
+				this.value=this.placeholder||this.getAttribute("placeholder");
+			}
+		}
+
+		elem.onblur();//首次
+
+	}
+}
+
+
+
+//判断输入域是否为空
+function isFilled(field){
+	if(field.value.replace(" ",'').length==0) return false;  
+	var placeholder=field.placeholder||field.getAttribute("placeholder");
+	return (field.value!=placeholder);
+
+}
+
+//判断电子邮件格式是否合法
+function isEmail(field){
+	return (field.value.indexOf("@")!=-1 &&field.value.indexOf(".")!=-1);
+}
+
+function validateForm(whichform){
+	for(var i=0;i<whichform.elements.length;i++){
+		var elem=whichform.elements[i];
+		//if i user elem.required,the return value is true or false,so getAttribute is used
+		if(elem.getAttribute("required")== "required"){
+			if(!isFilled(elem)){
+				alert("please fill in the "+elem.name+" field");
+				return false;
+			}
+		}
+
+		if(elem.type=="email"){
+			if(!isEmail(elem)){
+				alert("The "+elem.name+" must be a valid email address!");
+				return false;
+			}
+		}
+
+
+	}
+	return true;
+}
+
+
+function prepareForms(){
+	for(var i=0;i<document.forms.length;i++){
+		var thisform=document.forms[i];
+		resetFields(thisform);
+		thisform.onsubmit=function(){
+			if(!validateForm(thisform)) return false;
+			var article=document.getElementsByTagName("article")[0];
+			if(submitFormWithAjax(this,article)) return false;
+			return true;
+		}
+	}
+}
+
+//Ajax request
+
+function getHTTPObject() {
+  if (typeof XMLHttpRequest == "undefined")
+    XMLHttpRequest = function () {
+      try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); }
+        catch (e) {}
+      try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); }
+        catch (e) {}
+      try { return new ActiveXObject("Msxml2.XMLHTTP"); }
+        catch (e) {}
+      return false;
+  }
+  return new XMLHttpRequest();
+}
+
+//show loading gif when load time is too long
+
+function displayAjaxLoading(element){
+	while(element.hasChildNodes){
+		element.removeChild(element.lastChild);
+	}
+
+	var content=document.createElement("img");
+	content.setAttribute("src","images/loading.gif");
+	content.setAttribute("alt","Loading.....");
+	element.appendChild(content);
+
+}
+
+
+function submitFormWithAjax( whichform, thetarget ) {
+  
+  var request = getHTTPObject();
+  if (!request) { return false; }
+
+  // Display a loading message.
+  displayAjaxLoading(thetarget);
+
+  // Collect the data.
+  var dataParts = [];
+  var element;
+  for (var i=0; i<whichform.elements.length; i++) {
+    element = whichform.elements[i];
+    dataParts[i] = element.name + '=' + encodeURIComponent(element.value);
+  }
+  var data = dataParts.join('&');
+
+  request.open('POST', whichform.getAttribute("action"), true);
+  request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+  request.onreadystatechange = function () {
+    if (request.readyState == 4) {
+        if (request.status == 200 || request.status == 0) {
+          var matches = request.responseText.match(/<article>([\s\S]+)<\/article>/);
+          if (matches.length > 0) {
+            thetarget.innerHTML = matches[1];
+          } else {
+            thetarget.innerHTML = '<p>Oops, there was an error. Sorry.</p>';
+          }
+        } else {
+          thetarget.innerHTML = '<p>' + request.statusText + '</p>';
+        }
+    }
+  };
+
+  request.send(data);
+   
+  return true;
+};
+
+
+
+addLoadEvent(prepareForms);
+
+/**************contact.html end****************/
+

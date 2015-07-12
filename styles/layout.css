@@ -126,3 +126,12 @@ tr td {
 	color: #223;
 	background: #eb6;
 }
+
+label {
+	display: block;
+}
+
+fieldset {
+	border:0;
+
+}
