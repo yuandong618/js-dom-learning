@@ -111,3 +111,18 @@ article img {
 #imagegallery li {
 	display: inline;
 }
+
+td {
+	padding:.5em 3em ;
+
+}
+
+th {
+	color: #edc;
+	background: #455;
+}
+
+tr td {
+	color: #223;
+	background: #eb6;
+}
